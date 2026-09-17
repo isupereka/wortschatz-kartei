@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wortschatz-Kartei — B2 Beruf</title>
+<style>
+  :root{
+    --bg: #dbe1dc;
+    --bg-2: #c9d1ca;
+    --paper: #faf7ef;
+    --paper-line: #e4ddc8;
+    --ink: #202b3a;
+    --ink-soft: #4a5568;
+    --tab: #8a6d4b;
+    --tab-dark: #6e5738;
+    --red: #a3312a;
+    --red-dark: #7d2420;
+    --green: #3c6e47;
+    --green-dark: #2c522f;
+    --gold: #a8802f;
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, var(--bg-2), var(--bg) 60%);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+  .wrap{max-width: 760px; margin: 0 auto;}
+
+  /* ---- Header: Aktendeckel ---- */
+  .folder-header{
+    background: var(--tab);
+    color: #f5efe0;
+    border-radius: 10px 10px 0 0;
+    padding: 18px 24px 14px;
+    position: relative;
+    box-shadow: 0 3px 0 var(--tab-dark);
+  }
+  .folder-header .tab{
+    position:absolute;
+    top:-16px; left: 24px;
+    background: var(--tab);
+    padding: 6px 18px 4px;
+    border-radius: 6px 6px 0 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    box-shadow: 0 -2px 0 var(--tab-dark) inset;
+  }
+  .folder-header h1{
+    margin: 6px 0 2px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: .01em;
+  }
+  .folder-header .sub{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    opacity: .88;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;
+  }
+
+  .sheet{
+    background: var(--paper);
+    background-image: repeating-linear-gradient(
+        to bottom, transparent, transparent 27px, var(--paper-line) 28px
+      );
+    border-radius: 0 0 10px 10px;
+    padding: 26px 26px 30px;
+    box-shadow: 0 10px 26px rgba(20,30,25,.18), 0 1px 0 rgba(255,255,255,.4) inset;
+    min-height: 340px;
+  }
+
+  h2.section-title{
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+    border-bottom: 1px dashed #c9bfa0;
+    padding-bottom: 8px;
+  }
+
+  /* ---- Setup screen ---- */
+  .group-list{
+    display:flex; flex-direction:column; gap:6px;
+    margin-bottom: 18px;
+  }
+  .group-row{
+    display:flex; align-items:center; gap:10px;
+    background: rgba(255,255,255,.5);
+    border: 1px solid #ddd3b6;
+    border-left: 6px solid var(--tab);
+    border-radius: 4px;
+    padding: 9px 12px;
+    cursor:pointer;
+    user-select:none;
+    transition: background .15s;
+  }
+  .group-row:hover{ background: rgba(255,255,255,.85); }
+  .group-row.checked{ border-left-color: var(--green); background: rgba(255,255,255,.9); }
+  .group-row input{ accent-color: var(--green); width:16px; height:16px; flex:none; }
+  .group-row .gname{ font-weight:600; font-size: 14.5px; flex:1; }
+  .group-row .gcount{ font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); }
+
+  .row-actions{ display:flex; gap:10px; margin-bottom:20px; }
+  .link-btn{
+    background:none; border:none; font-family: var(--font-mono);
+    font-size:11.5px; color: var(--tab-dark); text-decoration:underline;
+    cursor:pointer; padding:0;
+  }
+
+  .option-block{ margin-bottom: 20px; }
+  .option-block .label{
+    font-family: var(--font-mono); font-size:12px; text-transform:uppercase;
+    letter-spacing:.07em; color: var(--ink-soft); margin-bottom:8px; display:block;
+  }
+  .segmented{ display:flex; gap:8px; flex-wrap:wrap; }
+  .seg-btn{
+    border: 1.5px solid #cabf9c; background: rgba(255,255,255,.5);
+    padding: 9px 14px; border-radius: 6px; cursor:pointer;
+    font-size: 13.5px; font-weight:600; color: var(--ink);
+    transition: all .15s;
+  }
+  .seg-btn.active{
+    background: var(--ink); color: #f5efe0; border-color: var(--ink);
+  }
+
+  .count-select{
+    font-family: var(--font-mono); font-size:14px; padding:8px 10px;
+    border-radius:6px; border:1.5px solid #cabf9c; background: rgba(255,255,255,.6);
+  }
+
+  .stamp-btn{
+    display:block; width: 100%; margin-top: 8px;
+    background: var(--red); color: #fff2ea;
+    border:none; border-radius: 8px;
+    padding: 15px; font-size: 16px; font-weight:700;
+    font-family: var(--font-ui); letter-spacing:.03em;
+    cursor:pointer; box-shadow: 0 4px 0 var(--red-dark);
+    transition: transform .08s, box-shadow .08s;
+  }
+  .stamp-btn:active{ transform: translateY(3px); box-shadow: 0 1px 0 var(--red-dark); }
+  .stamp-btn:disabled{ background:#b3a68c; box-shadow:0 4px 0 #90856f; cursor:not-allowed; }
+
+  .stamp-btn.secondary{
+    background: var(--ink); box-shadow: 0 4px 0 #0e1622;
+  }
+  .stamp-btn.secondary:active{ box-shadow: 0 1px 0 #0e1622; }
+
+  .warn-empty{ font-size:13.5px; color: var(--red-dark); margin-top:8px; }
+
+  /* ---- Session header ---- */
+  .progress-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .progress-bar{
+    height:6px; background:#e4ddc8; border-radius:4px; overflow:hidden; flex:1; margin: 0 12px;
+  }
+  .progress-bar > div{ height:100%; background: var(--green); transition: width .25s; }
+  .score-tag{ font-weight:700; color: var(--ink); }
+
+  /* ---- Flashcard ---- */
+  .card-stage{ perspective: 1200px; margin: 10px 0 20px; }
+  .flashcard{
+    background: #fffdf7;
+    border: 1px solid #ddd0aa;
+    border-radius: 12px;
+    min-height: 190px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; padding: 30px 20px;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,.1);
+    position:relative;
+  }
+  .flashcard .theme-chip{
+    position:absolute; top:10px; left:14px;
+    font-family: var(--font-mono); font-size:10.5px; color:#a89a6f;
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .flashcard .word{
+    font-family: var(--font-display); font-size: 27px; font-weight:700; color: var(--ink);
+  }
+  .flashcard .word.answer{ color: var(--green-dark); }
+  .flashcard .hint{
+    position:absolute; bottom:10px; right:14px;
+    font-family: var(--font-mono); font-size:10px; color:#b6ab8a;
+  }
+  .flash-actions{ display:flex; gap:10px; }
+  .flash-actions .stamp-btn{ flex:1; }
+  .flash-actions .ok{ background: var(--green); box-shadow:0 4px 0 var(--green-dark); }
+
+  /* ---- Trash button (on card) ---- */
+  .trash-row-top{ display:flex; justify-content:flex-end; margin-bottom:8px; }
+  .trash-btn-lg{
+    background:rgba(255,255,255,.55); border:1.5px solid #cabf9c; border-radius:8px;
+    cursor:pointer; font-size:13px; padding:8px 14px; font-family:var(--font-mono);
+    color:var(--ink-soft); min-height:40px;
+  }
+  .trash-btn-lg:active{ background:rgba(255,255,255,.9); }
+
+  /* ---- Bridges section ---- */
+  .bridges-section{
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid #ddd0aa;
+    font-size: 12px; font-family: var(--font-mono); color: var(--ink);
+  }
+  .bridges-section .section-label{
+    display: block; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;
+  }
+  .bridges-list{
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .bridge-tag{
+    background: rgba(255,255,255,.6); border: 1px solid #cabf9c; border-radius: 6px;
+    padding: 8px 10px; cursor: pointer; transition: all .15s;
+    font-size: 12px; white-space: normal; min-width: 120px; text-align: center; line-height: 1.3;
+  }
+  .bridge-tag:active{ background: rgba(255,255,255,.9); transform: scale(0.98); }
+  .bridge-tag.word-family{ border-left: 3px solid var(--green); }
+  .bridge-tag.collocation{ border-left: 3px solid var(--gold); }
+  .bridge-tag.related{ border-left: 3px solid var(--blue); }
+
+  /* ---- Bridges section ---- */
+  .bridges-section{
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid #ddd0aa;
+    font-size: 12px; font-family: var(--font-mono); color: var(--ink);
+  }
+  .bridges-section .section-label{
+    display: block; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;
+  }
+  .bridges-list{
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .example-item{
+    display: block; padding: 8px 12px; background: rgba(255,255,255,.6); border: 1px solid #cabf9c; border-radius: 6px;
+    font-size: 12px; line-height: 1.4; margin-bottom: 6px; color: var(--ink);
+  }
+  .example-item .example-text{ display: block; margin-bottom: 3px; }
+  .example-item .example-translation{ display: block; font-size: 11px; color: var(--ink-soft); font-style: italic; }
+
+  /* ---- Trash screen ---- */
+  .trash-row{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background: rgba(255,255,255,.55); border:1px solid #ddd0aa; border-radius:8px;
+    padding: 10px 14px; margin-bottom:8px;
+  }
+  .trash-row .words{ font-size:13.5px; }
+  .trash-row .words .de{ font-weight:700; }
+  .trash-row .words .ru{ color: var(--ink-soft); }
+  .trash-row .acts{ display:flex; gap:6px; flex-shrink:0; }
+  .trash-row .acts button{
+    font-family: var(--font-mono); font-size:11px; padding:6px 10px;
+    border-radius:6px; border:1.5px solid #cabf9c; background:rgba(255,255,255,.7); cursor:pointer;
+  }
+  .trash-row .acts .restore{ border-color: var(--green); color: var(--green-dark); }
+  .trash-row .acts .forever{ border-color: var(--red); color: var(--red-dark); }
+  .trash-empty{ text-align:center; color:var(--ink-soft); font-family:var(--font-mono); font-size:13px; padding: 20px 0; }
+  .trash-header-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+
+  /* ---- Multiple choice ---- */
+  .quiz-prompt{
+    font-family: var(--font-display); font-size: 22px; font-weight:700;
+    text-align:center; margin: 6px 0 22px; color: var(--ink);
+  }
+  .quiz-prompt .theme-chip{
+    display:block; font-family: var(--font-mono); font-size:10.5px; color:#a89a6f;
+    text-transform:uppercase; letter-spacing:.05em; font-weight:400; margin-bottom:8px;
+  }
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .opt-btn{
+    text-align:left; padding: 13px 16px; border-radius:8px;
+    border: 1.5px solid #cabf9c; background: rgba(255,255,255,.55);
+    font-size: 14.5px; cursor:pointer; font-family: var(--font-ui);
+    transition: background .1s;
+  }
+  .opt-btn:hover{ background: rgba(255,255,255,.9); }
+  .opt-btn.correct{ background:#dcecdc; border-color: var(--green); }
+  .opt-btn.wrong{ background:#f3d9d6; border-color: var(--red); }
+  .opt-btn:disabled{ cursor:default; }
+
+  /* ---- Type test ---- */
+  .type-input{
+    width:100%; font-size:17px; padding:13px 14px; border-radius:8px;
+    border: 1.5px solid #cabf9c; font-family: var(--font-ui); margin-bottom:14px;
+    background: rgba(255,255,255,.7);
+  }
+  .type-input:focus{ outline:2px solid var(--gold); }
+  .feedback-box{
+    padding: 12px 14px; border-radius: 8px; margin-bottom: 14px;
+    font-size: 14px; display:none;
+  }
+  .feedback-box.show{ display:block; }
+  .feedback-box.correct{ background:#dcecdc; border:1px solid var(--green); }
+  .feedback-box.wrong{ background:#f3d9d6; border:1px solid var(--red); }
+  .feedback-box b{ font-family: var(--font-display); font-size:16px; }
+
+  /* stamp overlay */
+  .stamp-mark{
+    position:absolute; top:50%; left:50%; transform: translate(-50%,-50%) rotate(-14deg) scale(0);
+    font-family: var(--font-mono); font-weight:700; font-size: 34px;
+    padding: 8px 22px; border: 4px solid currentColor; border-radius:8px;
+    letter-spacing:.08em; pointer-events:none; opacity:0;
+    animation: stampIn .35s ease-out forwards;
+  }
+  .stamp-mark.ok{ color: var(--green-dark); }
+  .stamp-mark.no{ color: var(--red-dark); }
+  @keyframes stampIn{
+    0%{ transform: translate(-50%,-50%) rotate(-14deg) scale(2.2); opacity:0; }
+    60%{ opacity:1; }
+    100%{ transform: translate(-50%,-50%) rotate(-14deg) scale(1); opacity:.92; }
+  }
+
+  .nav-row{ display:flex; gap:10px; margin-top: 6px; }
+  .nav-row .stamp-btn{ flex:1; }
+
+  /* ---- Results ---- */
+  .result-hero{ text-align:center; padding: 10px 0 22px; }
+  .result-hero .big{
+    font-family: var(--font-display); font-size: 46px; font-weight:700; color: var(--ink);
+  }
+  .result-hero .verdict{
+    display:inline-block; margin-top:10px; font-family: var(--font-mono);
+    padding: 6px 16px; border: 3px solid; border-radius:6px; letter-spacing:.08em;
+    transform: rotate(-3deg); font-weight:700; font-size:14px;
+  }
+  .verdict.pass{ color: var(--green-dark); border-color: var(--green-dark); }
+  .verdict.fail{ color: var(--red-dark); border-color: var(--red-dark); }
+
+  .miss-list{ list-style:none; padding:0; margin: 14px 0 20px; display:flex; flex-direction:column; gap:6px; }
+  .miss-list li{
+    display:flex; justify-content:space-between; gap:10px;
+    background: rgba(255,255,255,.55); border:1px solid #ddd0aa; border-radius:6px;
+    padding: 9px 12px; font-size:13.5px;
+  }
+  .miss-list .de{ font-weight:700; }
+  .miss-list .ru{ color: var(--ink-soft); text-align:right; }
+
+  footer{
+    text-align:center; margin-top: 20px; font-family: var(--font-mono);
+    font-size:11px; color: #7d8a80;
+  }
+
+  @media (max-width: 480px){
+    .folder-header h1{ font-size:22px; }
+    .flashcard .word{ font-size:22px; }
+    .result-hero .big{ font-size:36px; }
+  }
+
+  .example-translation {
+    color: #8b7355;
+    font-size: 0.9em;
+    margin-left: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="folder-header">
+    <div class="tab">Az. WS-1339/2026</div>
+    <h1>Wortschatz-Kartei</h1>
+    <div class="sub">
+      <span id="hdrLeft">Deutsch B2 Beruf · Vorbereitung telc</span>
+      <span id="hdrRight">Karteikasten: 2285 Einträge</span>
+    </div>
+  </div>
+
+  <div class="sheet" id="app"></div>
+
+  <footer>geführt von Ілля · nach Sinngruppen sortiert, Vokabellisten Урок 4 – Thema 8</footer>
+</div>
+
+<script id="vocab-data-holder" type="application/json">[]</script>
+<script>
+// Загрузка словаря с GitHub (используй свой ник вместо isupereka)
+async function loadVocab() {
+  try {
+    const githubUrl = 'https://raw.githubusercontent.com/isupereka/wortschatz-kartei/main/vocab_data.json';
+    console.log('🔄 Загружаю слова с GitHub...');
+    
+    const response = await fetch(githubUrl);
+    if (response.ok) {
+      const vocab = await response.json();
+      document.getElementById('vocab-data-holder').textContent = JSON.stringify(vocab);
+      console.log(`✓ Загружено ${vocab.length} слов`);
+      return vocab;
+    } else {
+      console.log('⚠️ GitHub недоступен');
+      return null;
+    }
+  } catch (e) {
+    console.log('⚠️ Ошибка загрузки:', e.message);
+    return null;
+  }
+}
+
+// Загружаем при запуске
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadVocab();
+});
+</script>
+<script>
+const VOCAB = JSON.parse(document.getElementById('vocab-data-holder').textContent);
+const GROUPS = [...new Set(VOCAB.map(e => e.group))];
+
+let state = {
+  screen: 'setup',
+  selectedGroups: new Set(GROUPS),
+  mode: 'flash',        // flash | mc | type
+  direction: 'de-ru',    // de-ru | ru-de
+  count: 20,
+  deck: [],
+  idx: 0,
+  score: 0,
+  mistakes: [],
+  flipped: false,
+  trash: new Set(),     // id -> hidden from ротация, восстановимо
+  deleted: new Set(),   // id -> удалено навсегда (тоже просто скрыто локально)
+  bridgeCard: null,     // for bridge-detail screen
+};
+
+function activeVocab(){
+  return VOCAB.filter(e => !state.trash.has(e.id) && !state.deleted.has(e.id));
+}
+function groupCounts(){
+  const pool = activeVocab();
+  return Object.fromEntries(GROUPS.map(g => [g, pool.filter(e=>e.group===g).length]));
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function pickDeck(){
+  const pool = activeVocab().filter(e => state.selectedGroups.has(e.group));
+  const n = Math.min(state.count, pool.length);
+  return shuffle(pool).slice(0, n);
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(state.screen === 'setup') app.innerHTML = renderSetup();
+  else if(state.screen === 'session') app.innerHTML = renderSession();
+  else if(state.screen === 'results') app.innerHTML = renderResults();
+  else if(state.screen === 'trash') app.innerHTML = renderTrash();
+  else if(state.screen === 'bridge-detail') app.innerHTML = renderBridgeDetail();
+  attachHandlers();
+  persistState();
+}
+
+function persistState(){
+  try{
+    const payload = {
+      selectedGroups: Array.from(state.selectedGroups),
+      mode: state.mode,
+      direction: state.direction,
+      count: state.count,
+      screen: state.screen,
+      deckIds: state.deck.map(c=>c.id),
+      idx: state.idx,
+      score: state.score,
+      mistakeIds: state.mistakes.map(c=>c.id),
+    };
+    if(window.storage && window.storage.set){
+      window.storage.set('trainerState', JSON.stringify(payload), false).catch(()=>{});
+    }
+  } catch(err){ /* ignore persistence errors */ }
+}
+
+function persistTrash(){
+  try{
+    const payload = {
+      trash: Array.from(state.trash),
+      deleted: Array.from(state.deleted),
+    };
+    if(window.storage && window.storage.set){
+      window.storage.set('trainerTrash', JSON.stringify(payload), false).catch(()=>{});
+    }
+  } catch(err){ /* ignore persistence errors */ }
+}
+
+function trashCard(id){
+  state.trash.add(id);
+  persistTrash();
+}
+function restoreCard(id){
+  state.trash.delete(id);
+  persistTrash();
+}
+function deleteForever(id){
+  state.trash.delete(id);
+  state.deleted.add(id);
+  persistTrash();
+}
+
+/* ---------------- SETUP ---------------- */
+function renderSetup(){
+  const gc = groupCounts();
+  const groupsHtml = GROUPS.map(g => {
+    const checked = state.selectedGroups.has(g);
+    return `<label class="group-row ${checked?'checked':''}" data-group="${escAttr(g)}">
+      <input type="checkbox" ${checked?'checked':''} data-group-cb="${escAttr(g)}">
+      <span class="gname">${esc(g)}</span>
+      <span class="gcount">${gc[g]} слов</span>
+    </label>`;
+  }).join('');
+
+  const poolCount = activeVocab().filter(e => state.selectedGroups.has(e.group)).length;
+
+  return `
+    <h2 class="section-title">1 · Themenbereiche auswählen</h2>
+    <div class="group-list">${groupsHtml}</div>
+    <div class="row-actions">
+      <button class="link-btn" id="selAll">выбрать все</button>
+      <button class="link-btn" id="selNone">снять все</button>
+      <button class="link-btn" id="openTrash">🗑 корзина (${state.trash.size})</button>
+    </div>
+
+    <h2 class="section-title">2 · Übungsform</h2>
+    <div class="option-block">
+      <span class="label">Modus</span>
+      <div class="segmented" id="modeSeg">
+        <button class="seg-btn ${state.mode==='flash'?'active':''}" data-mode="flash">Karteikarten</button>
+        <button class="seg-btn ${state.mode==='mc'?'active':''}" data-mode="mc">Multiple-Choice</button>
+        <button class="seg-btn ${state.mode==='type'?'active':''}" data-mode="type">Schreibtest</button>
+      </div>
+    </div>
+    <div class="option-block">
+      <span class="label">Richtung</span>
+      <div class="segmented" id="dirSeg">
+        <button class="seg-btn ${state.direction==='de-ru'?'active':''}" data-dir="de-ru">DE → RU</button>
+        <button class="seg-btn ${state.direction==='ru-de'?'active':''}" data-dir="ru-de">RU → DE</button>
+      </div>
+    </div>
+    <div class="option-block">
+      <span class="label">Anzahl Karten</span>
+      <select class="count-select" id="countSel">
+        ${[10,20,30,50,100].map(n=>`<option value="${n}" ${state.count===n?'selected':''}>${n}</option>`).join('')}
+        <option value="9999" ${state.count===9999?'selected':''}>alle ausgewählten (${poolCount})</option>
+      </select>
+    </div>
+
+    <button class="stamp-btn" id="startBtn" ${poolCount===0?'disabled':''}>Übung starten →</button>
+    ${poolCount===0?'<div class="warn-empty">Wähle mindestens eine Lektion aus.</div>':''}
+  `;
+}
+
+/* ---------------- SESSION ---------------- */
+function currentCard(){ return state.deck[state.idx]; }
+
+function renderSession(){
+  const total = state.deck.length;
+  const pct = Math.round((state.idx/total)*100);
+  const header = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px;">
+      <div class="progress-row" style="flex: 1; margin-bottom: 0;">
+        <span>Karte ${Math.min(state.idx+1,total)} / ${total}</span>
+        <div class="progress-bar"><div style="width:${pct}%"></div></div>
+        <span class="score-tag">✓ ${state.score}</span>
+      </div>
+      <button id="backToSetup" style="padding: 8px 12px; background: rgba(255,255,255,.6); border: 1.5px solid #cabf9c; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; cursor: pointer; white-space: nowrap; flex-shrink: 0;">← Katalog</button>
+    </div>`;
+
+  if(state.idx >= total){
+    state.screen = 'results';
+    return renderResults();
+  }
+
+  if(state.mode === 'flash') return header + trashRow() + renderFlash();
+  if(state.mode === 'mc') return header + trashRow() + renderMC();
+  return header + trashRow() + renderType();
+}
+
+function trashRow(){
+  return `<div class="trash-row-top"><button class="trash-btn-lg" id="trashCardBtn">🗑 в корзину</button></div>`;
+}
+
+function frontBack(card){
+  if(state.direction === 'de-ru') return [card.de, card.ru];
+  return [card.ru, card.de];
+}
+
+function renderExamples(card){
+  let html = '';
+  
+  // Collocations (примеры использования)
+  if(card.collocations && card.collocations.length){
+    html += `<div class="bridges-section"><span class="section-label">💡 Примеры</span>`;
+    for(let col of card.collocations){
+      html += `<div class="example-item"><span class="example-text">${esc(col)}</span></div>`;
+    }
+    html += `</div>`;
+  }
+  
+  // Synonyms with translations
+  if(card.synonymsData && card.synonymsData.length){
+    html += `<div class="bridges-section"><span class="section-label">🔄 Синонимы</span>`;
+    for(let syn of card.synonymsData){
+      html += `<div class="example-item">
+        <span class="example-text">${esc(syn.de)}</span>
+        <span class="example-translation"> — ${esc(syn.ru)}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  } else if(card.synonyms && card.synonyms.length){
+    // Fallback для старых синонимов без переводов
+    html += `<div class="bridges-section"><span class="section-label">🔄 Синонимы</span>`;
+    for(let syn of card.synonyms){
+      html += `<div class="example-item"><span class="example-text">${esc(syn)}</span></div>`;
+    }
+    html += `</div>`;
+  }
+  
+  return html;
+}
+
+function renderBridges(card){
+  if(!card.bridges || !card.bridges.length) return '';
+  const byType = {word_family: [], collocation: [], related: []};
+  card.bridges.forEach(b => {
+    if(byType[b.type]) byType[b.type].push(b);
+  });
+  let html = '';
+  if(byType.word_family.length){
+    html += `<div class="bridges-section"><span class="section-label">👤 Wortfamilie</span><div class="bridges-list">${byType.word_family.map(b => `<button class="bridge-tag word-family" data-bridge-word="${escAttr(b.word)}" title="${escAttr(b.ru)}">${esc(b.word)}<br><span style="font-size: 11px; color: var(--ink-soft);">${esc(b.ru)}</span></button>`).join('')}</div></div>`;
+  }
+  if(byType.collocation.length){
+    html += `<div class="bridges-section"><span class="section-label">🔗 Kollokationen</span><div class="bridges-list">${byType.collocation.map(b => `<button class="bridge-tag collocation" data-bridge-word="${escAttr(b.word)}" title="${escAttr(b.ru)}">${esc(b.word)}<br><span style="font-size: 11px; color: var(--ink-soft);">${esc(b.ru)}</span></button>`).join('')}</div></div>`;
+  }
+  if(byType.related.length){
+    html += `<div class="bridges-section"><span class="section-label">📚 Verwandte Wörter</span><div class="bridges-list">${byType.related.map(b => `<button class="bridge-tag related" data-bridge-word="${escAttr(b.word)}" title="${escAttr(b.ru)}">${esc(b.word)}<br><span style="font-size: 11px; color: var(--ink-soft);">${esc(b.ru)}</span></button>`).join('')}</div></div>`;
+  }
+  return html;
+}
+
+function renderFlash(){
+  const card = currentCard();
+  const [front, back] = frontBack(card);
+  const showing = state.flipped ? back : front;
+  return `
+    <div class="card-stage">
+      <div class="flashcard" id="flashcard">
+        <span class="theme-chip">${esc(card.themeShort)}</span>
+        <div class="word ${state.flipped?'answer':''}">${esc(showing)}</div>
+        <span class="hint">${state.flipped? '' : 'antippen zum Umdrehen'}</span>
+      </div>
+    </div>
+    ${renderExamples(card)}
+    <div class="flash-actions">
+      ${state.flipped ? `
+        <button class="stamp-btn secondary" id="flashAgain">Nochmal üben</button>
+        <button class="stamp-btn ok" id="flashKnow">Weiß ich ✓</button>
+      ` : `<button class="stamp-btn" id="flashFlip" style="flex:1">Antwort zeigen</button>`}
+    </div>
+  `;
+}
+
+function renderMC(){
+  const card = currentCard();
+  const [front, back] = frontBack(card);
+  const isDeRu = state.direction === 'de-ru';
+  const pool = VOCAB.filter(e => e.id !== card.id);
+  const distractors = shuffle(pool).slice(0,3).map(e => isDeRu ? e.ru : e.de);
+  const options = shuffle([back, ...distractors]);
+
+  return `
+    <div class="quiz-prompt">
+      <span class="theme-chip">${esc(card.themeShort)}</span>
+      ${esc(front)}
+    </div>
+    <div class="options" id="mcOptions">
+      ${options.map(o => `<button class="opt-btn" data-val="${escAttr(o)}">${esc(o)}</button>`).join('')}
+    </div>
+    ${renderExamples(card)}
+  `;
+}
+
+function renderType(){
+  const card = currentCard();
+  const [front] = frontBack(card);
+  return `
+    <div class="quiz-prompt">
+      <span class="theme-chip">${esc(card.themeShort)}</span>
+      ${esc(front)}
+    </div>
+    <input type="text" class="type-input" id="typeInput" placeholder="${state.direction==='de-ru' ? 'Übersetzung eingeben…' : 'deutsches Wort eingeben…'}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="feedback-box" id="typeFeedback"></div>
+    <button class="stamp-btn" id="typeCheck">Prüfen</button>
+    ${renderExamples(card)}
+  `;
+}
+
+function normalize(s){
+  return s.toLowerCase()
+    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+    .replace(/[.,;:!?()«»„“"]/g,'')
+    .replace(/\s+/g,' ').trim();
+}
+
+/* ---------------- RESULTS ---------------- */
+function renderResults(){
+  const total = state.deck.length;
+  const pct = total ? Math.round((state.score/total)*100) : 0;
+  const pass = pct >= 70;
+  const missHtml = state.mistakes.map(m => `
+    <li><span class="de">${esc(m.de)}</span><span class="ru">${esc(m.ru)}</span></li>
+  `).join('');
+
+  return `
+    <h2 class="section-title">Ergebnis</h2>
+    <div class="result-hero">
+      <div class="big">${state.score} / ${total}</div>
+      <div style="font-family:var(--font-mono); color:var(--ink-soft); margin-top:4px;">${pct}% richtig</div>
+      <div class="verdict ${pass?'pass':'fail'}">${pass? 'BESTANDEN' : 'ÜBEN, BITTE'}</div>
+    </div>
+    ${state.mistakes.length ? `
+      <h2 class="section-title">Zum Wiederholen (${state.mistakes.length})</h2>
+      <ul class="miss-list">${missHtml}</ul>
+    ` : '<p style="text-align:center; color:var(--ink-soft); font-family:var(--font-mono); font-size:13px;">Keine Fehler — sehr gut!</p>'}
+    <div class="nav-row">
+      <button class="stamp-btn secondary" id="backSetup">Neue Auswahl</button>
+      ${state.mistakes.length ? '<button class="stamp-btn" id="retryMiss">Fehler wiederholen</button>' : `<button class="stamp-btn" id="retrySame">Nochmal, gleiche Karten</button>`}
+    </div>
+  `;
+}
+
+/* ---------------- BRIDGE DETAIL ---------------- */
+function renderBridgeDetail(){
+  const card = state.bridgeCard;
+  if(!card) return `<p>Keine Karte gefunden.</p>`;
+  
+  return `
+    <div style="padding: 16px;">
+      <button id="bridgeBack" style="display: block; width: 100%; padding: 12px; margin-bottom: 16px; background: rgba(255,255,255,.7); border: 1.5px solid #cabf9c; border-radius: 8px; font-family: var(--font-mono); font-size: 14px; cursor: pointer; color: var(--ink);">← Zurück zur Karte</button>
+      
+      <div style="text-align: center;">
+        <h2 style="margin: 20px 0 10px; font-family: Georgia; font-size: 24px;">${esc(card.de)}</h2>
+        <p style="margin: 0 0 20px; font-size: 16px; color: var(--ink-soft);">${esc(card.ru)}</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------- TRASH ---------------- */
+function renderTrash(){
+  const items = VOCAB.filter(e => state.trash.has(e.id));
+  const rows = items.map(e => `
+    <div class="trash-row" data-id="${e.id}">
+      <div class="words"><span class="de">${esc(e.de)}</span> — <span class="ru">${esc(e.ru)}</span></div>
+      <div class="acts">
+        <button class="restore" data-restore="${e.id}">вернуть</button>
+        <button class="forever" data-forever="${e.id}">удалить навсегда</button>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="trash-header-row">
+      <h2 class="section-title" style="margin:0;">🗑 Корзина (${items.length})</h2>
+      <button class="link-btn" id="trashBack">← zurück</button>
+    </div>
+    ${items.length ? `
+      ${rows}
+      <div class="row-actions" style="margin-top:10px;">
+        <button class="link-btn" id="trashClearAll">удалить всё навсегда</button>
+      </div>
+    ` : `<div class="trash-empty">Корзина пуста.</div>`}
+  `;
+}
+
+/* ---------------- HANDLERS ---------------- */
+function attachHandlers(){
+  if(state.screen === 'setup'){
+    document.querySelectorAll('[data-group-cb]').forEach(cb=>{
+      cb.addEventListener('change', e=>{
+        const g = e.target.getAttribute('data-group-cb');
+        if(e.target.checked) state.selectedGroups.add(g); else state.selectedGroups.delete(g);
+        render();
+      });
+    });
+    document.getElementById('selAll').onclick = ()=>{ state.selectedGroups = new Set(GROUPS); render(); };
+    document.getElementById('selNone').onclick = ()=>{ state.selectedGroups = new Set(); render(); };
+    document.getElementById('openTrash').onclick = ()=>{ state.screen = 'trash'; render(); };
+    document.querySelectorAll('#modeSeg .seg-btn').forEach(b=>{
+      b.onclick = ()=>{ state.mode = b.getAttribute('data-mode'); render(); };
+    });
+    document.querySelectorAll('#dirSeg .seg-btn').forEach(b=>{
+      b.onclick = ()=>{ state.direction = b.getAttribute('data-dir'); render(); };
+    });
+    document.getElementById('countSel').onchange = (e)=>{ state.count = parseInt(e.target.value,10); };
+    const startBtn = document.getElementById('startBtn');
+    if(startBtn) startBtn.onclick = ()=>{
+      state.deck = pickDeck();
+      state.idx = 0; state.score = 0; state.mistakes = []; state.flipped = false;
+      state.screen = 'session';
+      render();
+    };
+  }
+
+  if(state.screen === 'session'){
+    const backBtn = document.getElementById('backToSetup');
+    if(backBtn) backBtn.onclick = ()=>{ state.screen = 'setup'; state.flipped = false; render(); };
+    const trashBtn = document.getElementById('trashCardBtn');
+    if(trashBtn) trashBtn.onclick = (e)=>{
+      e.stopPropagation();
+      trashCard(currentCard().id);
+      state.idx++; state.flipped = false;
+      render();
+    };
+    document.querySelectorAll('[data-bridge-word]').forEach(btn=>{
+      btn.onclick = (e)=>{
+        e.stopPropagation();
+        const bridgeWord = btn.getAttribute('data-bridge-word');
+        const bridgeCard = VOCAB.find(c => c.de === bridgeWord);
+        if(bridgeCard){
+          state.screen = 'bridge-detail';
+          state.bridgeCard = bridgeCard;
+          render();
+        }
+      };
+    });
+    if(state.mode === 'flash'){
+      const fc = document.getElementById('flashcard');
+      if(fc) fc.onclick = ()=>{ state.flipped = !state.flipped; render(); };
+      const flip = document.getElementById('flashFlip');
+      if(flip) flip.onclick = (e)=>{ e.stopPropagation(); state.flipped = true; render(); };
+      const again = document.getElementById('flashAgain');
+      if(again) again.onclick = (e)=>{ e.stopPropagation(); nextCard(false); };
+      const know = document.getElementById('flashKnow');
+      if(know) know.onclick = (e)=>{ e.stopPropagation(); nextCard(true); };
+    }
+    if(state.mode === 'mc'){
+      const card = currentCard();
+      const [, back] = frontBack(card);
+      document.querySelectorAll('#mcOptions .opt-btn').forEach(btn=>{
+        btn.onclick = ()=>{
+          const val = btn.getAttribute('data-val');
+          const correct = val === back;
+          document.querySelectorAll('#mcOptions .opt-btn').forEach(b2=>{
+            b2.disabled = true;
+            if(b2.getAttribute('data-val') === back) b2.classList.add('correct');
+            else if(b2 === btn) b2.classList.add('wrong');
+          });
+          if(correct) state.score++;
+          else state.mistakes.push(card);
+          setTimeout(()=>{ state.idx++; state.flipped=false; render(); }, 700);
+        };
+      });
+    }
+    if(state.mode === 'type'){
+      const card = currentCard();
+      const [, back] = frontBack(card);
+      const input = document.getElementById('typeInput');
+      const fb = document.getElementById('typeFeedback');
+      const checkBtn = document.getElementById('typeCheck');
+      input.focus();
+      const doCheck = ()=>{
+        if(checkBtn.disabled) return;
+        checkBtn.disabled = true;
+        const userVal = input.value;
+        const acceptable = back.split('/').map(s=>normalize(s.trim()));
+        const correct = acceptable.includes(normalize(userVal));
+        fb.classList.add('show', correct?'correct':'wrong');
+        fb.innerHTML = correct
+          ? `<b>Richtig!</b>`
+          : `<b>Nicht ganz.</b> Richtige Antwort: <b>${esc(back)}</b>`;
+        if(correct) state.score++;
+        else state.mistakes.push(card);
+        checkBtn.textContent = 'Weiter →';
+        checkBtn.disabled = false;
+        checkBtn.onclick = ()=>{ state.idx++; state.flipped=false; render(); };
+      };
+      checkBtn.onclick = doCheck;
+      input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doCheck(); }});
+    }
+  }
+
+  if(state.screen === 'results'){
+    document.getElementById('backSetup').onclick = ()=>{ state.screen='setup'; render(); };
+    const retryMiss = document.getElementById('retryMiss');
+    if(retryMiss) retryMiss.onclick = ()=>{
+      state.deck = shuffle(state.mistakes);
+      state.idx = 0; state.score = 0; state.mistakes = []; state.flipped = false;
+      state.screen = 'session';
+      render();
+    };
+    const retrySame = document.getElementById('retrySame');
+    if(retrySame) retrySame.onclick = ()=>{
+      state.idx = 0; state.score = 0; state.mistakes = []; state.flipped = false;
+      state.screen = 'session';
+      render();
+    };
+  }
+
+  if(state.screen === 'trash'){
+    document.getElementById('trashBack').onclick = ()=>{ state.screen = 'setup'; render(); };
+    document.querySelectorAll('[data-restore]').forEach(btn=>{
+      btn.onclick = ()=>{ restoreCard(parseInt(btn.getAttribute('data-restore'),10)); render(); };
+    });
+    document.querySelectorAll('[data-forever]').forEach(btn=>{
+      btn.onclick = ()=>{ deleteForever(parseInt(btn.getAttribute('data-forever'),10)); render(); };
+    });
+    const clearAll = document.getElementById('trashClearAll');
+    if(clearAll) clearAll.onclick = ()=>{
+      Array.from(state.trash).forEach(id => deleteForever(id));
+      render();
+    };
+  }
+
+  if(state.screen === 'bridge-detail'){
+    const backBtn = document.getElementById('bridgeBack');
+    if(backBtn) backBtn.onclick = ()=>{ state.screen = 'session'; state.bridgeCard = null; render(); };
+    document.querySelectorAll('[data-bridge-word]').forEach(btn=>{
+      btn.onclick = (e)=>{
+        e.stopPropagation();
+        const bridgeWord = btn.getAttribute('data-bridge-word');
+        const bc = VOCAB.find(c => c.de === bridgeWord);
+        if(bc) state.bridgeCard = bc;
+        render();
+      };
+    });
+  }
+}
+
+function nextCard(known){
+  const card = currentCard();
+  if(known) state.score++;
+  else state.mistakes.push(card);
+  state.idx++; state.flipped = false;
+  render();
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escAttr(s){ return esc(s); }
+
+async function init(){
+  try{
+    if(window.storage && window.storage.get){
+      const trashResult = await window.storage.get('trainerTrash');
+      if(trashResult && trashResult.value){
+        const savedTrash = JSON.parse(trashResult.value);
+        if(Array.isArray(savedTrash.trash)) state.trash = new Set(savedTrash.trash);
+        if(Array.isArray(savedTrash.deleted)) state.deleted = new Set(savedTrash.deleted);
+      }
+    }
+  } catch(err){ /* no trash data yet */ }
+  try{
+    if(window.storage && window.storage.get){
+      const result = await window.storage.get('trainerState');
+      if(result && result.value){
+        const saved = JSON.parse(result.value);
+        if(Array.isArray(saved.selectedGroups)){
+          const filtered = saved.selectedGroups.filter(g=>GROUPS.includes(g));
+          if(filtered.length) state.selectedGroups = new Set(filtered);
+        }
+        if(saved.mode) state.mode = saved.mode;
+        if(saved.direction) state.direction = saved.direction;
+        if(saved.count) state.count = saved.count;
+        if(saved.screen === 'session' && Array.isArray(saved.deckIds) && saved.deckIds.length){
+          const deck = saved.deckIds.map(id=>VOCAB.find(w=>w.id===id)).filter(Boolean);
+          if(deck.length === saved.deckIds.length){
+            state.deck = deck;
+            state.idx = typeof saved.idx === 'number' ? saved.idx : 0;
+            state.score = typeof saved.score === 'number' ? saved.score : 0;
+            state.mistakes = (saved.mistakeIds||[]).map(id=>VOCAB.find(w=>w.id===id)).filter(Boolean);
+            state.flipped = false;
+            state.screen = state.idx < state.deck.length ? 'session' : 'results';
+          }
+        }
+      }
+    }
+  } catch(err){
+    /* no saved state yet, or storage unavailable — start fresh */
+  }
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
