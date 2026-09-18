@@ -1,2 +1,67 @@
 <!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wortschatz-Kartei</title>
+  <style>
+    body {
+        background: #dbe1dc;
+        margin: 0;
+        padding: 0;
+        font-family: Georgia, serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        color: #202b3a;
+    }
+    .container {
+        background: #faf7ef;
+        padding: 40px;
+        border-radius: 8px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #8a6d4b; margin: 0 0 20px 0; font-size: 32px; }
+    p { font-size: 18px; margin: 20px 0; }
+    .ok { color: #3c6e47; }
+    .err { color: #a3312a; }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Wortschatz-Kartei</h1>
+    <p id="status">Загружаю словарь...</p>p>
+  </div>
+  
+  <script>
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://raw.githubusercontent.com/isupereka/wortschatz-kartei/main/vocab_data.json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+              try {
+                      var data = JSON.parse(xhr.responseText);
+                      document.getElementById('status').textContent = '✓ ' + data.length + ' слов загружено';
+                      document.getElementById('status').className = 'ok';
+                      localStorage.setItem('vocab_data', xhr.responseText);
+              } catch (e) {
+                      document.getElementById('status').textContent = '❌ Ошибка JSON: ' + e.message;
+                      document.getElementById('status').className = 'err';
+              }
+        } else {
+              document.getElementById('status').textContent = '❌ Ошибка загрузки (HTTP ' + xhr.status + ')';
+              document.getElementById('status').className = 'err';
+        }
+    };
+    xhr.onerror = function() {
+        document.getElementById('status').textContent = '❌ Ошибка сети';
+        document.getElementById('status').className = 'err';
+    };
+    xhr.send();
+  </script>
+</body>
+</html>html><!DOCTYPE html>
+
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>Wortschatz-Kartei — B2 Beruf</title><style>body{background:#dbe1dc;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:Georgia,serif}div{background:#faf7ef;padding:40px;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)}h1{color:#8a6d4b;margin:0 0 20px}p{font-size:18px;color:#333}</style></head><body><div><h1>📚 Wortschatz-Kartei</h1><p id="msg">Загружаю словарь...</p>p></div><script>fetch("https://raw.githubusercontent.com/isupereka/wortschatz-kartei/main/vocab_data.json").then(r=>r.json()).then(v=>{document.getElementById("msg").textContent=`✓ ${v.length} слов загружено`; localStorage.setItem("vocab",JSON.stringify(v))}).catch(e=>{document.getElementById("msg").style.color="#a3312a"; document.getElementById("msg").textContent=`❌ Ошибка: ${e.message}`})</script></body></html>html></script></h1></div></body></style></title></head>
