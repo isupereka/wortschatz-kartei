@@ -203,6 +203,9 @@
     font-family: var(--font-ui); font-size: 14px; font-weight: 400; line-height: 1.4;
     color: var(--ink-soft); text-wrap: balance;
   }
+  .flashcard .card-sentence{ cursor: pointer; }
+  .flashcard .sent-hint{ display:block; margin-top:4px; font-family: var(--font-mono); font-size:10px; opacity:.6; }
+  .flashcard .card-sentence-ru{ margin-top:6px; font-style: italic; opacity:.85; }
   .flashcard.has-sentence{ padding-top: 64px; }   /* room for the (up to 4 lines long) theme chip above the word + sentence */
   .flash-actions{ display:flex; gap:10px; }
   .flash-actions .stamp-btn{ flex:1; }
@@ -673,7 +676,11 @@ function frontBack(card){
 // never next to the Russian side, so it cannot give the answer away. Multiple-Choice / Schreibtest stay untouched.
 function renderSentence(card){
   if(!card.sentence || !card.sentence.de) return '';
-  return `<div class="card-sentence">${esc(card.sentence.de)}</div>`;
+  // tap on the example (not on the card) shows its Russian translation; resets on the next card
+  const ru = card.sentence.ru
+    ? (state.sentenceRu ? `<div class="card-sentence-ru">${esc(card.sentence.ru)}</div>` : `<span class="sent-hint">перевод ▾</span>`)
+    : '';
+  return `<div class="card-sentence" id="cardSentence">${esc(card.sentence.de)}${ru}</div>`;
 }
 
 function renderExamples(card, revealed){
@@ -996,6 +1003,8 @@ function attachHandlers(){
     if(state.mode === 'flash'){
       const fc = document.getElementById('flashcard');
       if(fc) fc.onclick = ()=>{ state.flipped = !state.flipped; render(); };
+      const cs = document.getElementById('cardSentence');
+      if(cs) cs.onclick = (e)=>{ e.stopPropagation(); state.sentenceRu = !state.sentenceRu; render(); };
       const flip = document.getElementById('flashFlip');
       if(flip) flip.onclick = (e)=>{ e.stopPropagation(); state.flipped = true; render(); };
       const again = document.getElementById('flashAgain');
@@ -1127,6 +1136,7 @@ function attachHandlers(){
 }
 
 function nextCard(known){
+  state.sentenceRu = false;
   const card = currentCard();
   if(known) state.score++;
   else state.mistakes.push(card);
