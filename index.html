@@ -219,6 +219,7 @@
     color:var(--ink-soft); min-height:40px;
   }
   .trash-btn-lg:active{ background:rgba(255,255,255,.9); }
+  .trash-btn-lg.in-chest{ border-color:#c9a227; background:#fff3c4; color:#7a5c00; font-weight:700; }
 
   /* ---- Bridges section ---- */
   .bridges-section{
@@ -494,6 +495,7 @@ let state = {
   score: 0,
   mistakes: [],
   flipped: false,
+  chest: new Set(),     // ⭐ сундучок: трудные слова, хранится в этом браузере (localStorage)
   trash: new Set(),     // id -> hidden from ротация, восстановимо
   deleted: new Set(),   // id -> удалено навсегда (тоже просто скрыто локально)
   bridgeCard: null,     // for bridge-detail screen
@@ -569,6 +571,22 @@ function persistTrash(){
   } catch(err){ /* ignore persistence errors */ }
 }
 
+/* ---------------- ⭐ СУНДУЧОК: persisted in this browser (localStorage) ---------------- */
+function loadChest(){
+  try{
+    const raw = window.localStorage.getItem('wk_chest_v1');
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr.filter(n => typeof n === 'number') : []);
+  }catch(err){ return new Set(); }
+}
+function saveChest(){
+  try{ window.localStorage.setItem('wk_chest_v1', JSON.stringify(Array.from(state.chest))); }catch(err){ /* storage unavailable */ }
+}
+function toggleChest(id){
+  if(state.chest.has(id)) state.chest.delete(id); else state.chest.add(id);
+  saveChest();
+}
+
 function trashCard(id){
   state.trash.add(id);
   persistTrash();
@@ -603,7 +621,7 @@ function renderSetup(){
     <div class="row-actions">
       <button class="link-btn" id="selAll">выбрать все</button>
       <button class="link-btn" id="selNone">снять все</button>
-      <button class="link-btn" id="openTrash">🗑 корзина (${state.trash.size})</button>
+      <button class="link-btn" id="openTrash">⭐ Сундучок (${state.chest.size})</button>
     </div>
 
     <h2 class="section-title">2 · Übungsform</h2>
@@ -664,7 +682,9 @@ function renderSession(){
 }
 
 function trashRow(){
-  return `<div class="trash-row-top"><button class="trash-btn-lg" id="trashCardBtn">🗑 в корзину</button></div>`;
+  const c = currentCard();
+  const inChest = !!(c && state.chest.has(c.id));
+  return `<div class="trash-row-top"><button class="trash-btn-lg${inChest ? ' in-chest' : ''}" id="chestCardBtn">${inChest ? '★ в сундучке' : '⭐ в сундучок'}</button></div>`;
 }
 
 function frontBack(card){
@@ -854,29 +874,26 @@ function renderBridgeDetail(){
 }
 
 /* ---------------- TRASH ---------------- */
-function renderTrash(){
-  const items = VOCAB.filter(e => state.trash.has(e.id));
+function renderTrash(){   // ⭐ Сундучок
+  const items = VOCAB.filter(e => state.chest.has(e.id));
   const rows = items.map(e => `
     <div class="trash-row" data-id="${e.id}">
       <div class="words"><span class="de">${esc(e.de)}</span> — <span class="ru">${esc(e.ru)}</span></div>
       <div class="acts">
-        <button class="restore" data-restore="${e.id}">вернуть</button>
-        <button class="forever" data-forever="${e.id}">удалить навсегда</button>
+        <button class="forever" data-unchest="${e.id}">убрать</button>
       </div>
     </div>
   `).join('');
 
   return `
     <div class="trash-header-row">
-      <h2 class="section-title" style="margin:0;">🗑 Корзина (${items.length})</h2>
+      <h2 class="section-title" style="margin:0;">⭐ Сундучок (${items.length})</h2>
       <button class="link-btn" id="trashBack">← zurück</button>
     </div>
     ${items.length ? `
+      <button class="stamp-btn" id="chestStart" style="margin-bottom:14px;">Учить сундучок →</button>
       ${rows}
-      <div class="row-actions" style="margin-top:10px;">
-        <button class="link-btn" id="trashClearAll">удалить всё навсегда</button>
-      </div>
-    ` : `<div class="trash-empty">Корзина пуста.</div>`}
+    ` : `<div class="trash-empty">Сундучок пуст. На карточке нажми «⭐ в сундучок», чтобы положить сюда трудное слово.</div>`}
   `;
 }
 
@@ -927,11 +944,10 @@ function attachHandlers(){
   if(state.screen === 'session'){
     const backBtn = document.getElementById('backToSetup');
     if(backBtn) backBtn.onclick = ()=>{ state.screen = 'setup'; state.flipped = false; render(); };
-    const trashBtn = document.getElementById('trashCardBtn');
-    if(trashBtn) trashBtn.onclick = (e)=>{
+    const chestBtn = document.getElementById('chestCardBtn');
+    if(chestBtn) chestBtn.onclick = (e)=>{
       e.stopPropagation();
-      trashCard(currentCard().id);
-      state.idx++; state.flipped = false;
+      toggleChest(currentCard().id);
       render();
     };
     document.querySelectorAll('[data-bridge-word]').forEach(btn=>{
@@ -1077,17 +1093,18 @@ function attachHandlers(){
     };
   }
 
-  if(state.screen === 'trash'){
+  if(state.screen === 'trash'){   // ⭐ Сундучок
     document.getElementById('trashBack').onclick = ()=>{ state.screen = 'setup'; render(); };
-    document.querySelectorAll('[data-restore]').forEach(btn=>{
-      btn.onclick = ()=>{ restoreCard(parseInt(btn.getAttribute('data-restore'),10)); render(); };
+    document.querySelectorAll('[data-unchest]').forEach(btn=>{
+      btn.onclick = ()=>{ toggleChest(parseInt(btn.getAttribute('data-unchest'),10)); render(); };
     });
-    document.querySelectorAll('[data-forever]').forEach(btn=>{
-      btn.onclick = ()=>{ deleteForever(parseInt(btn.getAttribute('data-forever'),10)); render(); };
-    });
-    const clearAll = document.getElementById('trashClearAll');
-    if(clearAll) clearAll.onclick = ()=>{
-      Array.from(state.trash).forEach(id => deleteForever(id));
+    const chestStart = document.getElementById('chestStart');
+    if(chestStart) chestStart.onclick = ()=>{
+      if(state.mode === 'fam') state.mode = 'flash';
+      state.deck = shuffle(VOCAB.filter(e => state.chest.has(e.id)));
+      if(!state.deck.length) return;
+      state.idx = 0; state.score = 0; state.mistakes = []; state.flipped = false; state.sentenceRu = false;
+      state.screen = 'session';
       render();
     };
   }
@@ -1316,6 +1333,7 @@ function esc(s){
 function escAttr(s){ return esc(s); }
 
 async function init(){
+  state.chest = loadChest();
   try{
     if(window.storage && window.storage.get){
       const trashResult = await window.storage.get('trainerTrash');
