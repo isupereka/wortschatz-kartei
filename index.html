@@ -721,6 +721,8 @@ function renderExamples(card, revealed){
   
   // Cards that belong to a curated synonym family: the family (shown on the back of the card) replaces the old list
   if(familiesForCard(card).length) return html;
+  // Flashcard front: synonyms only after flipping (on the front they give the answer away)
+  if(revealed === false) return html;
 
   // Synonyms with translations
   if(card.synonymsData && card.synonymsData.length){
